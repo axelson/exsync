@@ -21,7 +21,7 @@ defmodule ExSync.Mixfile do
   def application do
     [
       mod: {ExSync.Application, []},
-      extra_applications: [:logger]
+      extra_applications: [:logger, :iex]
     ]
   end
 

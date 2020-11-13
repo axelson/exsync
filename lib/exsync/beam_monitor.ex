@@ -18,6 +18,22 @@ defmodule ExSync.BeamMonitor do
     GenServer.start_link(__MODULE__, opts)
   end
 
+  @doc """
+  Synchronizes with the code server if it is alive.
+
+  If it is not running, it also returns true.
+  """
+  def sync do
+    pid = Process.whereis(__MODULE__)
+    ref = Process.monitor(pid)
+    GenServer.cast(pid, {:sync, self(), ref})
+
+    receive do
+      ^ref -> :ok
+      {:DOWN, ^ref, _, _, _} -> :ok
+    end
+  end
+
   @impl GenServer
   def init(opts) when is_list(opts) do
     {:ok, watcher_pid} = FileSystem.start_link(dirs: ExSync.Config.beam_dirs())
@@ -80,6 +96,12 @@ defmodule ExSync.BeamMonitor do
       Task.start(mod, fun, args)
     end
 
+    {:noreply, state}
+  end
+
+  @impl GenServer
+  def handle_cast({:sync, pid, ref}, state) do
+    send(pid, ref)
     {:noreply, state}
   end
 

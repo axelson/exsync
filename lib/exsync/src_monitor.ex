@@ -11,6 +11,22 @@ defmodule ExSync.SrcMonitor do
     GenServer.start_link(__MODULE__, [])
   end
 
+  @doc """
+  Synchronizes with the code server if it is alive.
+
+  If it is not running, it also returns true.
+  """
+  def sync do
+    pid = Process.whereis(__MODULE__)
+    ref = Process.monitor(pid)
+    GenServer.cast(pid, {:sync, self(), ref})
+
+    receive do
+      ^ref -> :ok
+      {:DOWN, ^ref, _, _, _} -> :ok
+    end
+  end
+
   @impl GenServer
   def init([]) do
     {:ok, watcher_pid} =
@@ -55,6 +71,12 @@ defmodule ExSync.SrcMonitor do
   def handle_info(:throttle_timer_complete, state) do
     ExSync.Utils.recomplete()
     state = %State{state | throttle_timer: nil}
+    {:noreply, state}
+  end
+
+  @impl GenServer
+  def handle_cast({:sync, pid, ref}, state) do
+    send(pid, ref)
     {:noreply, state}
   end
 

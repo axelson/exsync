@@ -1,3 +1,11 @@
+Synchronize with the code server
+This can be used in a Phoenix/Plug application to avoid stepping on the Phoenix.CodeReloader's toes
+This avoids rendering a page when some modules are not available due to recompilation
+TODO:
+- [ ] I think with this code there's a race condition that should be handled if we want to be a replacement for CodeReloader
+  - If a reload and a file change come in at the same time we need to make sure that `sync` blocks until the file change is finished
+  - Although this is difficult because of the async file-based infrastructure that exsync is built on
+
 ExSync
 ======
 
