@@ -22,6 +22,7 @@ defmodule ExSync.Application do
         ExSync.Logger.Server,
         maybe_include_src_monitor(),
         ExSync.BeamMonitor
+        # ExSync.ReloaderServer
       ]
       |> List.flatten()
 

@@ -1,3 +1,23 @@
+Synchronize with the code server
+This can be used in a Phoenix/Plug application to avoid stepping on the Phoenix.CodeReloader's toes
+This avoids rendering a page when some modules are not available due to recompilation
+TODO:
+- [ ] I think with this code there's a race condition that should be handled if we want to be a replacement for CodeReloader
+  - If a reload and a file change come in at the same time we need to make sure that `sync` blocks until the file change is finished
+  - Although this is difficult because of the async file-based infrastructure that exsync is built on
+  - The cleanest way to solve this is to use a single GenServer instead of 3
+- [ ] Document how to use ExSync in a Phoenix project
+
+The main problem with using ExSync in a Phoenix project is that requests can come in while code is being recompiled. This happens most often when a file is edited (which triggers the SrcMonitor and then the BeamMonitor) and then the browser is reloaded before compilation is finished. Code will then execute in an inbetween state where some modules are not available because they are being reloaded by the BeamMonitor. Instead we should wait until all the source and beam files have been processed.
+
+That could involve waiting for both the SrcMonitor and BeamMonitor to finish (which can be a little tricky because of the throttling that we're doing now), but perhaps it would be easier if we consolidated both of those into a single GenServer.
+
+I don't think it makes sense to try to fully replace Phoenix.CodeReloader because of how deeply integrated (and non-configurable) it is. Instead ExSync.ReloaderPlug would be used in addition to Phoenix.CodeReloader. It will block until the source and beam files are done being processed.
+
+Commits notes
+
+- Change the BeamMonitor to use the configured backend
+
 ExSync
 ======
 
