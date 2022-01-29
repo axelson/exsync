@@ -1,3 +1,10 @@
+We need to recompile without shelling out so that we can recompile faster. The
+problem with running `mix compile` is that we have to wait for the BEAM to
+startup which is slow.
+
+TODO:
+- Only call reload callback if compilation succeeded
+
 ExSync
 ======
 

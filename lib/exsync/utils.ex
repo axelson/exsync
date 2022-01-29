@@ -1,9 +1,21 @@
 defmodule ExSync.Utils do
-  def recomplete do
-    ExSync.Logger.debug("running mix compile")
+  require Logger
 
-    System.cmd("mix", ["compile"], cd: ExSync.Config.app_source_dir(), stderr_to_stdout: true)
-    |> log_compile_cmd()
+  def recomplete do
+    # ExSync.Logger.debug("running mix compile")
+
+    # System.cmd("mix", ["compile"], cd: ExSync.Config.app_source_dir(), stderr_to_stdout: true)
+    # |> log_compile_cmd()
+
+    # Attempt at iex recompile + some phoenix
+    # ExSync.Logger.debug("running iex recompile")
+    # ExSync.IExRecompile.recompile()
+
+    # Logger.info("Compiling without module conflicts")
+    # Mix.Tasks.Compile.Elixir.run(["--ignore-module-conflict"])
+
+    Logger.info("Compiling with ElixirLS")
+    ExSync.ElixirLSRecompile.recompile()
   end
 
   def unload(module) when is_atom(module) do
